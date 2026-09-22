@@ -1,6 +1,4 @@
 """Versioned, newline-delimited JSON protocol shared by the ROS 1 and ROS 2 nodes."""
-from __future__ import annotations
-
 import json
 import socket
 import time
@@ -20,7 +18,10 @@ def make_message(message_type, payload=None, request_id=None):
         "version": PROTOCOL_VERSION,
         "id": request_id or str(uuid.uuid4()),
         "type": message_type,
-        "timestamp_ns": time.time_ns(),
+        # Ubuntu 18.04's Python 3.6 lacks time.time_ns().  The Pi supplied
+        # with the ArmPi Pro uses that version, while this protocol does not
+        # need sub-nanosecond clock precision.
+        "timestamp_ns": int(time.time() * 1000000000),
         "payload": payload or {},
     }
 
